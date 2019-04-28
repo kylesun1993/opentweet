@@ -16,6 +16,8 @@
 		009C4C8C1D9F0CD600F0BC6C /* OpenTweetUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 009C4C8B1D9F0CD600F0BC6C /* OpenTweetUITests.swift */; };
 		009C4C9B1D9F0D4100F0BC6C /* timeline.json in Resources */ = {isa = PBXBuildFile; fileRef = 009C4C9A1D9F0D4100F0BC6C /* timeline.json */; };
 		6DAD459C22764D690021AE2A /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAD459B22764D690021AE2A /* Post.swift */; };
+		6DAD459E227656FE0021AE2A /* PostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAD459D227656FE0021AE2A /* PostCell.swift */; };
+		6DAD45A0227659A90021AE2A /* ImageFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAD459F227659A90021AE2A /* ImageFetcher.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +54,8 @@
 		009C4C9A1D9F0D4100F0BC6C /* timeline.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = timeline.json; sourceTree = "<group>"; };
 		009C4C9D1D9F104800F0BC6C /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		6DAD459B22764D690021AE2A /* Post.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
+		6DAD459D227656FE0021AE2A /* PostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostCell.swift; sourceTree = "<group>"; };
+		6DAD459F227659A90021AE2A /* ImageFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFetcher.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +111,8 @@
 				009C4C6B1D9F0CD600F0BC6C /* AppDelegate.swift */,
 				009C4C6D1D9F0CD600F0BC6C /* TimelineViewController.swift */,
 				6DAD459B22764D690021AE2A /* Post.swift */,
+				6DAD459D227656FE0021AE2A /* PostCell.swift */,
+				6DAD459F227659A90021AE2A /* ImageFetcher.swift */,
 				009C4C6F1D9F0CD600F0BC6C /* Main.storyboard */,
 				009C4C721D9F0CD600F0BC6C /* Assets.xcassets */,
 				009C4C741D9F0CD600F0BC6C /* LaunchScreen.storyboard */,
@@ -285,6 +291,8 @@
 				6DAD459C22764D690021AE2A /* Post.swift in Sources */,
 				009C4C6E1D9F0CD600F0BC6C /* TimelineViewController.swift in Sources */,
 				009C4C6C1D9F0CD600F0BC6C /* AppDelegate.swift in Sources */,
+				6DAD459E227656FE0021AE2A /* PostCell.swift in Sources */,
+				6DAD45A0227659A90021AE2A /* ImageFetcher.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -12,16 +12,15 @@ class Post
 {
     var author : String
     var avatar : String?
-    var inReplyTo: Int?
+    var replies: [Post]
     var content : String
     var date : Date
     var id : Int
 
-    
-    init(author: String, avatar: String?, inReplyTo: Int?, content: String, date: Date, id: Int) {
+    init(author: String, avatar: String?, replies: [Post], content: String, date: Date, id: Int) {
         self.author = author
         self.avatar = avatar
-        self.inReplyTo = inReplyTo
+        self.replies = replies
         self.content = content
         self.date = date
         self.id = id
