@@ -66,3 +66,11 @@ class PostCell : UITableViewCell
         textContainer.lineFragmentPadding = 0
     }
 }
+
+class ReplyCell : UITableViewCell
+{
+    @IBOutlet weak var author : UILabel!
+    @IBOutlet weak var content : UITextView!
+    @IBOutlet weak var timestamp : UILabel!
+    @IBOutlet weak var replies : UILabel!
+}

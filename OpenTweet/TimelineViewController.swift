@@ -19,11 +19,11 @@ class TimelineViewController: UIViewController
 		super.viewDidLoad()
         
         self.title = "OpenTweet"
+        self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         
         readJsonFile()
+        Utils.setupInterface("PostCell", tableView: tableView)
         
-        self.tableView.rowHeight = UITableView.automaticDimension
-        self.tableView.estimatedRowHeight = 300
         self.tableView.tableFooterView = UIView()
         
         self.tableView.delegate = self
@@ -71,9 +71,7 @@ class TimelineViewController: UIViewController
             {
                 if let irt = inReplyTo, let replyTo = Int(irt)
                 {
-                    if let post = self.items.first(where: { (p) -> Bool in
-                        return p.id == replyTo
-                    })
+                    if let post = self.findItemById(replyTo, self.items)
                     {
                         let obj = Post(author: author, avatar: avatar ?? nil, replies: [], content: content, date: time, id: id)
                         post.replies.append(obj)
@@ -90,6 +88,24 @@ class TimelineViewController: UIViewController
         self.items.sort { (p1, p2) -> Bool in
             return p1.date > p2.date
         }
+    }
+    
+    func findItemById(_ id : Int, _ objs: [Post]) -> Post?
+    {
+        for item in objs
+        {
+            if item.id == id
+            {
+                return item
+            }
+            
+            if item.replies.count != 0
+            {
+                return findItemById(id, item.replies)
+            }
+        }
+        
+        return nil
     }
 
 	override func didReceiveMemoryWarning() {
@@ -120,5 +136,12 @@ extension TimelineViewController : UITableViewDelegate, UITableViewDataSource
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
+        if let vc = storyBoard.instantiateViewController(withIdentifier: "TimelineDetailsViewController") as? TimelineDetailsViewController
+        {
+            vc.item = items[indexPath.row]
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
     }
 }
