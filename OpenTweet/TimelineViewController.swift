@@ -9,6 +9,7 @@
 import UIKit
 import Foundation
 
+// Default view when landing, only shows the post but no replies
 class TimelineViewController: UIViewController
 {
     @IBOutlet weak var tableView : UITableView!
@@ -18,94 +19,20 @@ class TimelineViewController: UIViewController
 	override func viewDidLoad() {
 		super.viewDidLoad()
         
+        // set the title to OpenTweet
         self.title = "OpenTweet"
+        
+        // removes the text on the back button
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         
-        readJsonFile()
-        Utils.setupInterface("PostCell", tableView: tableView)
+        // reading the json file and parses it
+        self.items = Utils.readJsonFile()
         
-        self.tableView.tableFooterView = UIView()
+        // uses the custom view for tablecell
+        Utils.setupInterface("PostCell", tableView: tableView)
         
         self.tableView.delegate = self
         self.tableView.dataSource = self
-    }
-    
-    func readJsonFile()
-    {
-        if let filePath = Bundle.main.path(forResource: "timeline", ofType: "json")
-        {
-            do
-            {
-                let jsonData = try Data(contentsOf: URL(fileURLWithPath: filePath))
-                if let json = try JSONSerialization.jsonObject(with: jsonData, options: .mutableLeaves) as? Dictionary<String, AnyObject>,
-                    let timeline = json["timeline"] as? [Dictionary<String, AnyObject>]
-                {
-                    self.parseJson(timeline)
-                }
-            }
-            catch
-            {
-                print("fail to fetch data from file")
-            }
-        }
-        else
-        {
-            print("file not found")
-        }
-    }
-    
-    func parseJson(_ timeline : [Dictionary<String, AnyObject>])
-    {
-        for item in timeline
-        {
-            let author = item["author"] as! String
-            let avatar = item["avatar"] as? String
-            let content = item["content"] as! String
-            let inReplyTo = item["inReplyTo"] as? String
-            let date = item["date"] as! String
-            let id = item["id"] as! String
-            
-            let formatter = ISO8601DateFormatter()
-            
-            if let time = formatter.date(from: date), let id = Int(id)
-            {
-                if let irt = inReplyTo, let replyTo = Int(irt)
-                {
-                    if let post = self.findItemById(replyTo, self.items)
-                    {
-                        let obj = Post(author: author, avatar: avatar ?? nil, replies: [], content: content, date: time, id: id)
-                        post.replies.append(obj)
-                    }
-                }
-                else
-                {
-                    let obj = Post(author: author, avatar: avatar ?? nil, replies: [], content: content, date: time, id: id)
-                    self.items.append(obj)
-                }
-            }
-        }
-        
-        self.items.sort { (p1, p2) -> Bool in
-            return p1.date > p2.date
-        }
-    }
-    
-    func findItemById(_ id : Int, _ objs: [Post]) -> Post?
-    {
-        for item in objs
-        {
-            if item.id == id
-            {
-                return item
-            }
-            
-            if item.replies.count != 0
-            {
-                return findItemById(id, item.replies)
-            }
-        }
-        
-        return nil
     }
 
 	override func didReceiveMemoryWarning() {
@@ -115,10 +42,6 @@ class TimelineViewController: UIViewController
 
 extension TimelineViewController : UITableViewDelegate, UITableViewDataSource
 {
-    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UITableView.automaticDimension
-    }
-   
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return items.count
     }
@@ -126,8 +49,10 @@ extension TimelineViewController : UITableViewDelegate, UITableViewDataSource
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         
+        // this check if we can convert to PostCell, and checks if goes beyond index
         if let c = cell as? PostCell, indexPath.row < items.count
         {
+            // bind function attaches all labels, views, and image
             c.bind(item: items[indexPath.row])
         }
         
@@ -137,9 +62,10 @@ extension TimelineViewController : UITableViewDelegate, UITableViewDataSource
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
-        if let vc = storyBoard.instantiateViewController(withIdentifier: "TimelineDetailsViewController") as? TimelineDetailsViewController
+        // Initializes view to push
+        if let vc = Utils.initializeViewController("Main", "TimelineDetailsViewController") as? TimelineDetailsViewController
         {
+            // pass the object to the next viewController
             vc.item = items[indexPath.row]
             self.navigationController?.pushViewController(vc, animated: true)
         }

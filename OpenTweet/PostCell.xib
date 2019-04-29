@@ -25,11 +25,12 @@
                     <color key="textColor" white="0.33333333329999998" alpha="1" colorSpace="calibratedWhite"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <textView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="X3d-vm-KWX" customClass="OpenTweetTextView" customModule="OpenTweet" customModuleProvider="target">
+                <textView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="X3d-vm-KWX" customClass="PostCellTextView" customModule="OpenTweet" customModuleProvider="target">
                     <rect key="frame" x="82" y="35" width="293" height="140"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                    <dataDetectorType key="dataDetectorTypes" link="YES"/>
                 </textView>
                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="FxR-lh-mHr">
                     <rect key="frame" x="16" y="0.0" width="50" height="50"/>
@@ -81,6 +82,7 @@
                 <outlet property="avatar" destination="FxR-lh-mHr" id="nJU-V1-Yrs"/>
                 <outlet property="content" destination="X3d-vm-KWX" id="op6-Yg-aqM"/>
                 <outlet property="replies" destination="JXe-9h-Gqi" id="sVs-Qu-f67"/>
+                <outlet property="repliesContentOffset" destination="wKk-NV-GBn" id="0Zc-bk-jkr"/>
                 <outlet property="timestamp" destination="A77-cd-qsQ" id="PPn-mb-t69"/>
             </connections>
             <point key="canvasLocation" x="116" y="111"/>
