@@ -134,15 +134,19 @@ class PostCell : UITableViewCell
 
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView?
     {
-        // get the character where the text is touched
-        let characterIndex = self.layoutManager.characterIndex(for: point, in: self.textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
-        
-        // check if the character is within the text size
-        if characterIndex < self.textStorage.length
+        // check that the hit point is within the textView's range
+        if point.x > 0, point.y > 0, point.x < self.contentSize.width, point.y < self.contentSize.height
         {
-            // set the attribute of link to be clickable
-            if (self.textStorage.attribute(NSAttributedString.Key.link, at: characterIndex, effectiveRange: nil) != nil) {
-                return self
+            // get the character where the text is touched
+            let characterIndex = self.layoutManager.characterIndex(for: point, in: self.textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
+            
+            // check if the character is within the text size
+            if characterIndex < self.textStorage.length
+            {
+                // set the attribute of link to be clickable
+                if (self.textStorage.attribute(NSAttributedString.Key.link, at: characterIndex, effectiveRange: nil) != nil) {
+                    return self
+                }
             }
         }
         
