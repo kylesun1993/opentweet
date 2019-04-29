@@ -9,44 +9,102 @@
 import Foundation
 import UIKit
 
-class PostCell : UITableViewCell
+class PostingCell : UITableViewCell
 {
-    @IBOutlet weak var avatar : UIImageView!
-    @IBOutlet weak var author : UILabel!
-    @IBOutlet weak var content : UITextView!
-    @IBOutlet weak var timestamp : UILabel!
-    @IBOutlet weak var replies : UILabel!
+    var avatar : UIImageView = UIImageView()
+    var author : UILabel = UILabel()
+    var content : UILabel = UILabel()
+    var date : UILabel = UILabel()
+    var replies : UILabel = UILabel()
     
-    func bind(item : Post)
-    {
+    let avatarSize : Int = 50
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        self.contentView.addSubview(avatar)
+        self.contentView.addSubview(author)
+        self.contentView.addSubview(content)
+        self.contentView.addSubview(date)
+        self.contentView.addSubview(replies)
+        
+        avatar.translatesAutoresizingMaskIntoConstraints = false
+        author.translatesAutoresizingMaskIntoConstraints = false
+        content.translatesAutoresizingMaskIntoConstraints = false
+        date.translatesAutoresizingMaskIntoConstraints = false
+        replies.translatesAutoresizingMaskIntoConstraints = false
+        
+        let marginGuide = contentView.layoutMarginsGuide
+        
+        avatar.leadingAnchor.constraint(equalTo: marginGuide.leadingAnchor, constant: 8).isActive = true
+        avatar.topAnchor.constraint(equalTo: marginGuide.topAnchor, constant: 8).isActive = true
+        avatar.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        avatar.heightAnchor.constraint(equalToConstant: 50).isActive = true
+
+        author.leadingAnchor.constraint(equalTo: avatar.trailingAnchor, constant: 16).isActive = true
+        author.topAnchor.constraint(equalTo: marginGuide.topAnchor, constant: 8).isActive = true
+        
+        date.leadingAnchor.constraint(equalTo: author.trailingAnchor, constant: 8).isActive = true
+        date.centerYAnchor.constraint(equalTo: author.centerYAnchor, constant: 0).isActive = true
+        
+        content.numberOfLines = 0
+        content.leadingAnchor.constraint(equalTo: avatar.trailingAnchor, constant: 16).isActive = true
+        content.trailingAnchor.constraint(equalTo: marginGuide.trailingAnchor, constant: 8).isActive = true
+        content.topAnchor.constraint(equalTo: author.bottomAnchor, constant: 4).isActive = true
+        content.bottomAnchor.constraint(equalTo: replies.topAnchor, constant: -8).isActive = true
+        
+        replies.topAnchor.constraint(equalTo: content.bottomAnchor, constant: 8).isActive = true
+        replies.bottomAnchor.constraint(equalTo: marginGuide.bottomAnchor, constant: -8).isActive = true
+        replies.leadingAnchor.constraint(equalTo: avatar.trailingAnchor, constant: 16).isActive = true
+        replies.trailingAnchor.constraint(equalTo: marginGuide.trailingAnchor, constant: 8).isActive = true
+        
         // set the avatar image to round
-        self.avatar.layer.cornerRadius = avatar.frame.width / 2
+        self.avatar.layer.cornerRadius = CGFloat(avatarSize / 2)
         self.avatar.clipsToBounds = true
         
         // always set the default avatar image
         self.avatar.image = UIImage(named: "userDefault")
         
-        // fetch avatar image
-        self.getAvatar(item: item)
+        self.author.font = UIFont.boldSystemFont(ofSize: 16.0)
+        self.date.font = UIFont.systemFont(ofSize: 13.0)
+        self.content.font = UIFont.systemFont(ofSize: 14.0)
+        self.replies.font = UIFont.systemFont(ofSize: 13.0)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+    }
+    
+    func bind(items : [Post], indexPath : IndexPath)
+    {
+        let item = items[indexPath.row]
 
-        // set author text
+        
+        getAvatar(item: item)
+        
         self.author.text = item.author
-        
-        // set content text
         self.content.text = item.content
+        self.highlightLinks(item.content, label: self.content)
 
-        // set content background color to clear so that when selected, the color inherits from the cell background
-        self.content.backgroundColor = UIColor.clear
-        
-        // highlight the @{username} only, because link highlight checked in storyboard
-        self.highlightUsername(item.content, textView: self.content)
-        
-        // format the date to desired format
         let formatter = DateFormatter()
         formatter.dateFormat = "MM/dd/yy HH:mm"
         
         // set the time text
-        self.timestamp.text = formatter.string(from: item.date)
+        self.date.text = formatter.string(from: item.date)
+
+        if let r = items[indexPath.row].replyTo
+        {
+            if let user = items.first(where: { (p) -> Bool in
+                return p.id == r
+            })
+            {
+                self.replies.text = "replying to " + user.author
+            }
+        }
+        else
+        {
+            self.replies.text = ""
+        }
     }
     
     func getAvatar(item : Post)
@@ -71,7 +129,7 @@ class PostCell : UITableViewCell
                             {
                                 // switching back to main thread to set image
                                 DispatchQueue.main.async {
-                                    self.avatar?.image = UIImage(data: d)
+                                    self.avatar.image = UIImage(data: d)
                                 }
                             }
                         }
@@ -81,56 +139,35 @@ class PostCell : UITableViewCell
         }
     }
     
-    func highlightUsername(_ fullString : String, textView : UITextView)
+    func highlightLinks(_ fullString : String, label : UILabel)
     {
-        // use regex to check for username
-        let userMatch = Utils.matches(for: "^@[A-Za-z0-9._]{1,20}", in: fullString)
-        
-        // assume only the very first token of string will have the username
-        if userMatch.count > 0, let user = userMatch.first
-        {
-            // set the link attr, so link will be redirect to the url set below
-            let linkAttributes = [
-                NSAttributedString.Key.link: URL(string: "https://www.tweet.com/" + user)!,
-                NSAttributedString.Key.foregroundColor: UIColor.blue
-                ] as [NSAttributedString.Key : Any]
-            let str = NSMutableAttributedString(string: fullString)
-            
-            str.setAttributes(linkAttributes, range: NSMakeRange(0, user.count))
-            
-            textView.attributedText = str
-        }
-    }
-}
-
-@IBDesignable class PostCellTextView: UITextView {
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        // removes the extra padding in the textView
-        textContainerInset = UIEdgeInsets.zero
-        textContainer.lineFragmentPadding = 0
-    }
-
-    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView?
-    {
-        // check that the hit point is within the textView's range
-        if point.x > 0, point.y > 0, point.x < self.contentSize.width, point.y < self.contentSize.height
-        {
-            // get the character where the text is touched
-            let characterIndex = self.layoutManager.characterIndex(for: point, in: self.textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
-            
-            // check if the character is within the text size
-            if characterIndex < self.textStorage.length
+        let setTextAttr = { (str : String, range : NSRange) in
+            // assume only the very first token of string will have the username
+            if str.count > 0
             {
-                // set the attribute of link to be clickable
-                if (self.textStorage.attribute(NSAttributedString.Key.link, at: characterIndex, effectiveRange: nil) != nil) {
-                    return self
-                }
+                // set the link attr, so link will be redirect to the url set below
+                let linkAttributes = [
+                    NSAttributedString.Key.link: URL(string: str)!,
+                    NSAttributedString.Key.foregroundColor: UIColor.blue,
+                    NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 14.0)
+                    ] as [NSAttributedString.Key : Any]
+                let s = NSMutableAttributedString(string: fullString)
+                
+                s.setAttributes(linkAttributes, range: range)
+                
+                label.attributedText = s
             }
         }
         
-        // otherwise do nothing
-        return nil
+        // use regex to check for username
+        if let userMatch = Utils.matches(for: "^@[A-Za-z0-9._]{1,20}", in: fullString)
+        {
+            setTextAttr(userMatch.0, userMatch.1)
+        }
+        
+        if let urlMatch = Utils.matches(for: "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)", in: fullString)
+        {
+            setTextAttr(urlMatch.0, urlMatch.1)
+        }
     }
 }

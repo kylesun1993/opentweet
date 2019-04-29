@@ -14,10 +14,7 @@ class Utils
     static func setupInterface(_ cellNibName: String, tableView: UITableView)
     {
         // set the estimated row height to 150 to guess approx. cell height
-        tableView.estimatedRowHeight = 200
-        
-        // sets the cell to dynamic according content size
-        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 150
         
         // this removes additional seperate line beyond items count
         tableView.tableFooterView = UIView()
@@ -117,7 +114,7 @@ class Utils
         return storyBoard.instantiateViewController(withIdentifier: restorationId)
     }
     
-    static func matches(for regex: String, in text: String) -> [String]
+    static func matches(for regex: String, in text: String) -> (String,NSRange)?
     {
         do {
             // stuff the regex expression in NSRegularExpression
@@ -126,9 +123,14 @@ class Utils
             // cast String to NSString to use matches function
             let nsString = text as NSString
             let results = regex.matches(in: text, range: NSRange(location: 0, length: nsString.length))
-            
+
             // returns the substring of matched string
-            return results.map { nsString.substring(with: $0.range)}
+            
+            if let r = results.first?.range
+            {
+                return (nsString.substring(with: r), r)
+            }
+//            return results.map { nsString.substring(with: $0.range) }
         } catch let error {
             
             // print error
@@ -136,6 +138,6 @@ class Utils
         }
         
         // return empty array if nothing is found
-        return []
+        return nil
     }
 }
