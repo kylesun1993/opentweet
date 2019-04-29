@@ -22,6 +22,7 @@ class PostingCell : UITableViewCell
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
+        // adding all the view to cell programmatically, so we can set constraints for better visual.
         self.contentView.addSubview(avatar)
         self.contentView.addSubview(author)
         self.contentView.addSubview(content)
@@ -64,14 +65,17 @@ class PostingCell : UITableViewCell
         // always set the default avatar image
         self.avatar.image = UIImage(named: "userDefault")
         
+        // set different font size
         self.author.font = UIFont.boldSystemFont(ofSize: 16.0)
         self.date.font = UIFont.systemFont(ofSize: 13.0)
         self.content.font = UIFont.systemFont(ofSize: 14.0)
         self.replies.font = UIFont.systemFont(ofSize: 13.0)
-                
+        
+        // make content not editable and not scrollable
         self.content.isEditable = false
         self.content.isScrollEnabled = false
         
+        // make content background clear, so it inherits the color of the cell
         self.content.backgroundColor = UIColor.clear
 
     }
@@ -83,12 +87,15 @@ class PostingCell : UITableViewCell
     func bind(items : [Post], indexPath : IndexPath)
     {
         let item = items[indexPath.row]
-
         
+        // fetch avatar
         getAvatar(item: item)
         
+        // setting text
         self.author.text = item.author
         self.content.text = item.content
+        
+        // highlights the url and username
         self.highlightLinks(item.content, textView: self.content)
 
         let formatter = DateFormatter()

@@ -35,7 +35,6 @@ class TimelineViewController: UIViewController
         }
         
         // uses the custom view for tablecell
-//        tableView.register(UINib(nibName: "PostCell", bundle: nil), forCellReuseIdentifier: "Cell")
         tableView.register(PostingCell.self, forCellReuseIdentifier: "Cell")
         tableView.estimatedRowHeight = 60
         tableView.tableFooterView = UIView(frame: .zero)
@@ -83,6 +82,8 @@ extension TimelineViewController : UITableViewDelegate, UITableViewDataSource
             {
                 let item = items[indexPath.row]
                 var itemsForNextVC : [Post] = []
+                
+                // check if current item selected has replyTO
                 if let replyTo = item.replyTo
                 {
                     for i in items
@@ -125,6 +126,8 @@ extension TimelineViewController : UITableViewDelegate, UITableViewDataSource
                 
                 
                 vc.items = itemsForNextVC
+                
+                // set selected index so that we can see who is being selected from previous viewcontroller
                 vc.selectedIndex = itemsForNextVC.firstIndex(where: { (p) -> Bool in
                     return p.id == item.id
                 })
@@ -134,6 +137,7 @@ extension TimelineViewController : UITableViewDelegate, UITableViewDataSource
         }
     }
     
+    // set the cell height to dynamic
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }
