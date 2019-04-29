@@ -92,7 +92,7 @@ class Utils
                         let obj = Post(author: author, avatar: avatar ?? nil, replies: [], content: content, date: time, id: id)
                         
                         // we append the reply to its parent post
-                        post.replies.append(obj)
+                        Utils.insert(&post.replies, obj)
                     }
                 }
                 else
@@ -111,6 +111,22 @@ class Utils
         
         // return the items
         return items
+    }
+    
+    static func insert(_ replies : inout [Post], _ obj: Post)
+    {
+        var c = 0
+        for r in replies
+        {
+            if r.date > obj.date
+            {
+                replies.insert(obj, at: c)
+            }
+            
+            c += 1
+        }
+        
+        replies.append(obj)
     }
     
     static func findItemById(_ id : Int, _ objs: [Post]) -> Post?
