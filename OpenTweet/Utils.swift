@@ -13,11 +13,11 @@ class Utils
 {
     static func setupInterface(_ cellNibName: String, tableView: UITableView)
     {
+        // set the estimated row height to 150 to guess approx. cell height
+        tableView.estimatedRowHeight = 200
+        
         // sets the cell to dynamic according content size
         tableView.rowHeight = UITableView.automaticDimension
-        
-        // set the estimated row height to 300 to guess approx. cell height
-        tableView.estimatedRowHeight = 300
         
         // this removes additional seperate line beyond items count
         tableView.tableFooterView = UIView()
@@ -85,20 +85,15 @@ class Utils
                 // check if inReplyTo is null
                 if let irt = inReplyTo, let replyTo = Int(irt)
                 {
-                    // if inReplyTo is not null, then we need find the parent by id
-                    if let post = Utils.findItemById(replyTo, items)
-                    {
-                        // we construct object for reply
-                        let obj = Post(author: author, avatar: avatar ?? nil, replies: [], content: content, date: time, id: id)
-                        
-                        // we append the reply to its parent post
-                        Utils.insert(&post.replies, obj)
-                    }
+                    // we construct object for reply
+                    let obj = Post(author: author, avatar: avatar ?? nil, replyTo: replyTo, content: content, date: time, id: id)
+                    
+                    items.append(obj)
                 }
                 else
                 {
-                    // if inReplyTo is null, which means its the original, we just construct the object.
-                    let obj = Post(author: author, avatar: avatar ?? nil, replies: [], content: content, date: time, id: id)
+                    let obj = Post(author: author, avatar: avatar ?? nil, replyTo: nil, content: content, date: time, id: id)
+                    
                     items.append(obj)
                 }
             }
@@ -106,51 +101,13 @@ class Utils
         
         // we sort by ascending chronological order
         items.sort { (p1, p2) -> Bool in
-            return p1.date < p2.date
+            return p1.date > p2.date
         }
         
         // return the items
         return items
     }
-    
-    static func insert(_ replies : inout [Post], _ obj: Post)
-    {
-        var c = 0
-        for r in replies
-        {
-            if r.date > obj.date
-            {
-                replies.insert(obj, at: c)
-            }
-            
-            c += 1
-        }
-        
-        replies.append(obj)
-    }
-    
-    static func findItemById(_ id : Int, _ objs: [Post]) -> Post?
-    {
-        // we iterate the array of objects
-        for item in objs
-        {
-            // if id matches, then return the object
-            if item.id == id
-            {
-                return item
-            }
-            
-            // if id doesnt match, then we check if we try to iterate the replies.
-            if item.replies.count != 0
-            {
-                return findItemById(id, item.replies)
-            }
-        }
-        
-        // if nothing is found, we return nil
-        return nil
-    }
-    
+
     static func initializeViewController(_ storyboardName: String, _ restorationId: String) -> UIViewController
     {
         // initialize view by finding storyboard

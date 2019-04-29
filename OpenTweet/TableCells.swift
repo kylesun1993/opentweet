@@ -16,9 +16,8 @@ class PostCell : UITableViewCell
     @IBOutlet weak var content : UITextView!
     @IBOutlet weak var timestamp : UILabel!
     @IBOutlet weak var replies : UILabel!
-    @IBOutlet weak var repliesContentOffset : NSLayoutConstraint!
     
-    func bind(item : Post, _ hideReplyCount : Bool = false)
+    func bind(item : Post)
     {
         // set the avatar image to round
         self.avatar.layer.cornerRadius = avatar.frame.width / 2
@@ -35,6 +34,9 @@ class PostCell : UITableViewCell
         
         // set content text
         self.content.text = item.content
+
+        // set content background color to clear so that when selected, the color inherits from the cell background
+        self.content.backgroundColor = UIColor.clear
         
         // highlight the @{username} only, because link highlight checked in storyboard
         self.highlightUsername(item.content, textView: self.content)
@@ -45,28 +47,6 @@ class PostCell : UITableViewCell
         
         // set the time text
         self.timestamp.text = formatter.string(from: item.date)
-        
-        // for some reply cells have no additional replies, we hide the reply count
-        if !hideReplyCount
-        {
-            // resize the constraints so it resizes the cell height
-            self.repliesContentOffset.constant = 25
-            
-            // set reply text
-            self.replies.text = String(describing: item.replies.count) + (item.replies.count > 1 ? " replies" : " reply")
-        }
-        else
-        {
-            // resize the constraints so it resizes the cell height
-            self.repliesContentOffset.constant = 0
-            
-            // check if the replies is removed
-            if self.replies != nil
-            {
-                // remove replies text from the view
-                self.replies.removeFromSuperview()
-            }
-        }
     }
     
     func getAvatar(item : Post)
