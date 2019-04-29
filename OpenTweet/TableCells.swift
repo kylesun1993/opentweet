@@ -13,7 +13,7 @@ class PostingCell : UITableViewCell
 {
     var avatar : UIImageView = UIImageView()
     var author : UILabel = UILabel()
-    var content : UILabel = UILabel()
+    var content : PostCellTextView = PostCellTextView()
     var date : UILabel = UILabel()
     var replies : UILabel = UILabel()
     
@@ -47,7 +47,6 @@ class PostingCell : UITableViewCell
         date.leadingAnchor.constraint(equalTo: author.trailingAnchor, constant: 8).isActive = true
         date.centerYAnchor.constraint(equalTo: author.centerYAnchor, constant: 0).isActive = true
         
-        content.numberOfLines = 0
         content.leadingAnchor.constraint(equalTo: avatar.trailingAnchor, constant: 16).isActive = true
         content.trailingAnchor.constraint(equalTo: marginGuide.trailingAnchor, constant: 8).isActive = true
         content.topAnchor.constraint(equalTo: author.bottomAnchor, constant: 4).isActive = true
@@ -69,6 +68,12 @@ class PostingCell : UITableViewCell
         self.date.font = UIFont.systemFont(ofSize: 13.0)
         self.content.font = UIFont.systemFont(ofSize: 14.0)
         self.replies.font = UIFont.systemFont(ofSize: 13.0)
+                
+        self.content.isEditable = false
+        self.content.isScrollEnabled = false
+        
+        self.content.backgroundColor = UIColor.clear
+
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -84,7 +89,7 @@ class PostingCell : UITableViewCell
         
         self.author.text = item.author
         self.content.text = item.content
-        self.highlightLinks(item.content, label: self.content)
+        self.highlightLinks(item.content, textView: self.content)
 
         let formatter = DateFormatter()
         formatter.dateFormat = "MM/dd/yy HH:mm"
@@ -139,7 +144,7 @@ class PostingCell : UITableViewCell
         }
     }
     
-    func highlightLinks(_ fullString : String, label : UILabel)
+    func highlightLinks(_ fullString : String, textView : UITextView)
     {
         let setTextAttr = { (str : String, range : NSRange) in
             // assume only the very first token of string will have the username
@@ -147,7 +152,7 @@ class PostingCell : UITableViewCell
             {
                 // set the link attr, so link will be redirect to the url set below
                 let linkAttributes = [
-                    NSAttributedString.Key.link: URL(string: str)!,
+                    NSAttributedString.Key.link: URL(string: str.starts(with: "@") ? "http://www.tweet.com/" + str : str)!,
                     NSAttributedString.Key.foregroundColor: UIColor.blue,
                     NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 14.0)
                     ] as [NSAttributedString.Key : Any]
@@ -155,7 +160,7 @@ class PostingCell : UITableViewCell
                 
                 s.setAttributes(linkAttributes, range: range)
                 
-                label.attributedText = s
+                textView.attributedText = s
             }
         }
         
@@ -165,9 +170,43 @@ class PostingCell : UITableViewCell
             setTextAttr(userMatch.0, userMatch.1)
         }
         
+        // use regex to check for url
         if let urlMatch = Utils.matches(for: "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)", in: fullString)
         {
             setTextAttr(urlMatch.0, urlMatch.1)
         }
+    }
+}
+
+class PostCellTextView: UITextView
+{
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        // removes the extra padding in the textView
+        textContainerInset = UIEdgeInsets.zero
+        textContainer.lineFragmentPadding = 0
+    }
+    
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView?
+    {
+        // check that the hit point is within the textView's range
+        if point.x > 0, point.y > 0, point.x < self.contentSize.width, point.y < self.contentSize.height
+        {
+            // get the character where the text is touched
+            let characterIndex = self.layoutManager.characterIndex(for: point, in: self.textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
+            
+            // check if the character is within the text size
+            if characterIndex < self.textStorage.length
+            {
+                // set the attribute of link to be clickable
+                if (self.textStorage.attribute(NSAttributedString.Key.link, at: characterIndex, effectiveRange: nil) != nil) {
+                    return self
+                }
+            }
+        }
+        
+        // otherwise do nothing
+        return nil
     }
 }
